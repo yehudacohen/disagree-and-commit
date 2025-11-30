@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeff Barr Avatar - AI Agent</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Amazon Ember', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #232F3E 0%, #FF9900 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 30px;
+      max-width: 1200px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+    
+    .avatar-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    #avatar-container {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, #fff 0%, #f0f0f0 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 40px rgba(255, 153, 0, 0.3);
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .jeff-avatar {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .jeff-head {
+      width: 140px;
+      height: 160px;
+      background: #ffd4a3;
+      border-radius: 50% 50% 45% 45%;
+      position: relative;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .jeff-hair {
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      right: 10px;
+      height: 40px;
+      background: #8b7355;
+      border-radius: 50% 50% 0 0;
+    }
+    
+    .jeff-glasses {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      right: 20px;
+      height: 35px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .glass {
+      width: 40px;
+      height: 35px;
+      border: 3px solid #333;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      position: relative;
+    }
+    
+    .eye {
+      width: 12px;
+      height: 12px;
+      background: #333;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: blink 4s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 48%, 52%, 100% { height: 12px; }
+      50% { height: 2px; }
+    }
+    
+    .bridge {
+      width: 20px;
+      height: 3px;
+      background: #333;
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .jeff-mouth {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 25px;
+      border-radius: 0 0 50px 50px;
+      background: #d4a574;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    
+    .mouth-inner {
+      width: 100%;
+      height: 100%;
+      background: #8b4513;
+      border-radius: 0 0 50px 50px;
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 0.2s;
+    }
+    
+    .jeff-mouth.talking .mouth-inner {
+      transform: scaleY(1);
+    }
+    
+    .jeff-beard {
+      position: absolute;
+      bottom: 10px;
+      left: 30px;
+      right: 30px;
+      height: 30px;
+      background: #8b7355;
+      border-radius: 0 0 50% 50%;
+    }
+    
+    .personality-badge {
+      padding: 15px 25px;
+      background: #FF9900;
+      color: #232F3E;
+      border-radius: 12px;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+    }
+    
+    #personality-type {
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    #intensity-level {
+      font-size: 20px;
+      letter-spacing: 3px;
+      margin-top: 5px;
+    }
+    
+    .aws-badge {
+      background: #232F3E;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .interaction-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .response-box {
+      flex: 1;
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 25px;
+      min-height: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #2d3748;
+      border: 2px solid #FF9900;
+    }
+    
+    .response-box.active {
+      background: white;
+      animation: fadeIn 0.3s;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+    
+    #user-input {
+      flex: 1;
+      padding: 15px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    
+    #user-input:focus {
+      outline: none;
+      border-color: #FF9900;
+    }
+    
+    #send-btn {
+      padding: 15px 35px;
+      background: #FF9900;
+      color: #232F3E;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    #send-btn:hover {
+      background: #ec7211;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 153, 0, 0.4);
+    }
+    
+    #send-btn:active {
+      transform: translateY(0);
+    }
+    
+    #send-btn:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #718096;
+      font-weight: 600;
+    }
+    
+    .avatar-talking .jeff-head {
+      animation: headBob 0.5s ease-in-out infinite;
+    }
+    
+    @keyframes headBob {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-5px) rotate(2deg); }
+    }
+    
+    .avatar-idle .jeff-head {
+      animation: breathe 3s ease-in-out infinite;
+    }
+    
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    
+    select {
+      padding: 10px 15px;
+      border: 2px solid #FF9900;
+      border-radius: 8px;
+      background: white;
+      color: #232F3E;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .connection-status {
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      background: #48bb78;
+      color: white;
+      font-weight: 600;
+    }
+    
+    @media (max-width: 968px) {
+      .container {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+      
+      #avatar-container {
+        width: 250px;
+        height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="avatar-section">
+      <div id="avatar-container" class="avatar-idle">
+        <div class="jeff-avatar">
+          <div class="jeff-head">
+            <div class="jeff-hair"></div>
+            <div class="jeff-glasses">
+              <div class="glass">
+                <div class="eye"></div>
+              </div>
+              <div class="bridge"></div>
+              <div class="glass">
+                <div class="eye"></div>
+              </div>
+            </div>
+            <div class="jeff-mouth">
+              <div class="mouth-inner"></div>
+            </div>
+            <div class="jeff-beard"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="personality-badge">
+        <div id="personality-type">Extrovert</div>
+        <div id="intensity-level">●●●●○</div>
+      </div>
+      
+      <div class="aws-badge">AWS Chief Evangelist Style</div>
+      
+      <select id="personality-selector">
+        <option value="extrovert">Extrovert (Enthusiastic)</option>
+        <option value="calm">Calm (Thoughtful)</option>
+        <option value="angry">Angry (Direct)</option>
+        <option value="introverted">Introverted (Reserved)</option>
+      </select>
+      
+      <div class="connection-status" id="connection-status">
+        🟢 Ready
+      </div>
+    </div>
+    
+    <div class="interaction-section">
+      <div id="response-area" class="response-box">
+        <p style="color: #a0aec0; font-style: italic;">
+          👋 Hi! I'm Jeff, your AWS AI assistant.<br><br>
+          Ask me anything about cloud architecture, best practices, or get some advice!
+        </p>
+      </div>
+      
+      <div class="input-area">
+        <input 
+          type="text" 
+          id="user-input" 
+          placeholder="Ask Jeff anything..."
+          autocomplete="off"
+        />
+        <button id="send-btn">Send</button>
+      </div>
+      
+      <div class="stats">
+        <span id="frame-count">Frames: 0</span>
+        <span id="processing-time">Time: 0.00s</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Personality configurations matching agente_prueba.py
+    const TRAIT_BEHAVIORS = {
+      extrovert: {
+        animationIntensity: 1.4,
+        mouthSpeedMultiplier: 1.2,
+        color: '#FF9900'
+      },
+      calm: {
+        animationIntensity: 0.7,
+        mouthSpeedMultiplier: 0.9,
+        color: '#48bb78'
+      },
+      angry: {
+        animationIntensity: 1.2,
+        mouthSpeedMultiplier: 1.3,
+        color: '#e53e3e'
+      },
+      introverted: {
+        animationIntensity: 0.6,
+        mouthSpeedMultiplier: 0.85,
+        color: '#4299e1'
+      }
+    };
+
+    // Mock responses matching personality types from agente_prueba.py
+    const MOCK_RESPONSES = {
+      extrovert: [
+        "That's a fantastic question! Let me tell you about this exciting AWS service. You should definitely explore Amazon Bedrock for AI workloads - it's absolutely game-changing! The possibilities are endless!",
+        "Wow, I love your curiosity! Here's what you need to know: AWS offers incredible solutions for this. Check out Lambda, S3, and DynamoDB - they work together beautifully! Let's build something amazing!",
+        "Great thinking! The AWS approach here is super powerful. You'll want to use CloudFormation for infrastructure as code, and trust me, it'll make your life so much easier! Exciting times ahead!"
+      ],
+      calm: [
+        "That's a thoughtful question. Let me explain this carefully. The best approach with AWS is to start with a solid architecture foundation. Take your time to understand the services deeply.",
+        "I appreciate your question. Consider this: AWS provides many paths to success. The key is choosing the right service for your specific needs. Let's think through this methodically.",
+        "Good question. In my experience, the most effective AWS solutions come from careful planning. Consider using Well-Architected Framework principles to guide your decisions."
+      ],
+      angry: [
+        "Listen up! This is critical: You NEED to use AWS best practices NOW! Don't waste time with outdated approaches. Get on CloudFormation, implement proper IAM policies, and DO IT TODAY!",
+        "Stop! You're doing this wrong! AWS has clear guidelines for a reason. Follow the Well-Architected Framework! Use proper security groups! This is urgent!",
+        "Pay attention! This is important: Your architecture needs immediate improvement! Implement auto-scaling, use managed services, and stop making it complicated! Act now!"
+      ],
+      introverted: [
+        "I've given this some thought. Based on my analysis, the AWS service you should consider is carefully chosen for your use case. Let me explain the technical details precisely.",
+        "After careful consideration, I believe the best approach involves a measured implementation of AWS services. The documentation provides excellent guidance on this topic.",
+        "That's an interesting question. I would suggest taking time to review the AWS architecture patterns. A thoughtful, well-planned approach will serve you best here."
+      ]
+    };
+
+    class JeffAvatar {
+      constructor() {
+        this.currentPersonality = 'extrovert';
+        this.isAnimating = false;
+        this.apiBaseUrl = 'http://localhost:5000';
+        
+        this.initializeElements();
+        this.attachEventListeners();
+        this.updatePersonalityDisplay();
+        this.checkBackendConnection();
+      }
+      
+      initializeElements() {
+        this.avatarContainer = document.getElementById('avatar-container');
+        this.jeffMouth = document.querySelector('.jeff-mouth');
+        this.responseArea = document.getElementById('response-area');
+        this.userInput = document.getElementById('user-input');
+        this.sendBtn = document.getElementById('send-btn');
+        this.personalitySelector = document.getElementById('personality-selector');
+        this.frameCount = document.getElementById('frame-count');
+        this.processingTime = document.getElementById('processing-time');
+        this.personalityType = document.getElementById('personality-type');
+        this.intensityLevel = document.getElementById('intensity-level');
+        this.connectionStatus = document.getElementById('connection-status');
+      }
+      
+      attachEventListeners() {
+        this.sendBtn.addEventListener('click', () => this.handleUserQuery());
+        this.userInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.handleUserQuery();
+        });
+        this.personalitySelector.addEventListener('change', (e) => {
+          this.changePersonality(e.target.value);
+        });
+      }
+      
+      async checkBackendConnection() {
+        try {
+          const response = await fetch(`${this.apiBaseUrl}/api/health`);
+          if (response.ok) {
+            this.connectionStatus.textContent = '🟢 Connected to Backend';
+            this.connectionStatus.style.background = '#48bb78';
+          } else {
+            throw new Error('Backend not responding');
+          }
+        } catch (error) {
+          this.connectionStatus.textContent = '🟡 Demo Mode (No Backend)';
+          this.connectionStatus.style.background = '#ed8936';
+          console.log('Running in demo mode with mock responses');
+        }
+      }
+      
+      async changePersonality(traitType) {
+        this.currentPersonality = traitType;
+        this.updatePersonalityDisplay();
+        
+        // Try to update backend if available
+        try {
+          await fetch(`${this.apiBaseUrl}/api/agent/personality`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              agent_id: 'helpful_extrovert',
+              trait_type: traitType,
+              intensity: 0.8
+            })
+          });
+        } catch (error) {
+          console.log('Backend not available, using demo mode');
+        }
+        
+        this.responseArea.innerHTML = `<p style="color: #FF9900;">✨ Personality changed to: <strong>${traitType.toUpperCase()}</strong></p>`;
+      }
+      
+      async handleUserQuery() {
+        const query = this.userInput.value.trim();
+        if (!query) return;
+        
+        this.sendBtn.disabled = true;
+        this.userInput.disabled = true;
+        this.sendBtn.textContent = 'Thinking...';
+        
+        const startTime = performance.now();
+        
+        try {
+          let advice;
+          
+          // Try backend first
+          try {
+            const response = await fetch(`${this.apiBaseUrl}/api/agent/query`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                agent_id: 'helpful_extrovert',
+                query: query
+              })
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              advice = result.advice;
+            } else {
+              throw new Error('Backend error');
+            }
+          } catch (backendError) {
+            // Fallback to mock responses
+            advice = this.getMockResponse();
+          }
+          
+          // Display response with typing effect
+          await this.displayResponseTyping(advice);
+          
+          // Generate animation frames
+          const frames = this.generateAnimationFrames(advice);
+          
+          // Play animation
+          await this.playAnimationSequence(frames);
+          
+          // Update stats
+          const processingTimeMs = (performance.now() - startTime) / 1000;
+          this.updateStats(frames.length, processingTimeMs);
+          
+        } catch (error) {
+          this.displayError(error.message);
+        } finally {
+          this.sendBtn.disabled = false;
+          this.userInput.disabled = false;
+          this.sendBtn.textContent = 'Send';
+          this.userInput.value = '';
+          this.userInput.focus();
+        }
+      }
+      
+      getMockResponse() {
+        const responses = MOCK_RESPONSES[this.currentPersonality];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+      
+      async displayResponseTyping(text) {
+        this.responseArea.innerHTML = '';
+        this.responseArea.classList.add('active');
+        const p = document.createElement('p');
+        this.responseArea.appendChild(p);
+        
+        for (let i = 0; i < text.length; i++) {
+          p.textContent += text[i];
+          await this.sleep(15);
+        }
+      }
+      
+      generateAnimationFrames(text) {
+        const words = text.match(/\b\w+\b/g) || [];
+        const frames = [];
+        const behavior = TRAIT_BEHAVIORS[this.currentPersonality];
+        const animationIntensity = behavior.animationIntensity;
+        
+        let currentTime = 0.0;
+        
+        words.forEach((word) => {
+          const mouthPosition = this.calculateMouthPosition(word, animationIntensity);
+          const duration = word.length * 0.05 * (1.0 / animationIntensity);
+          
+          frames.push({
+            mouthPosition,
+            timestamp: currentTime,
+            duration,
+            intensity: animationIntensity
+          });
+          
+          currentTime += duration;
+        });
+        
+        return frames;
+      }
+      
+      calculateMouthPosition(word, intensity) {
+        const wordLength = word.length;
+        
+        if (intensity > 1.2) {
+          return wordLength > 5 ? "wide" : "open";
+        } else if (intensity < 0.8) {
+          return wordLength > 6 ? "open" : "closed";
+        } else {
+          return wordLength > 4 ? "open" : "closed";
+        }
+      }
+      
+      async playAnimationSequence(frames) {
+        this.isAnimating = true;
+        this.avatarContainer.classList.remove('avatar-idle');
+        this.avatarContainer.classList.add('avatar-talking');
+        
+        for (const frame of frames) {
+          this.renderFrame(frame);
+          await this.sleep(frame.duration * 1000);
+        }
+        
+        this.avatarContainer.classList.remove('avatar-talking');
+        this.avatarContainer.classList.add('avatar-idle');
+        this.jeffMouth.classList.remove('talking');
+        this.isAnimating = false;
+      }
+      
+      renderFrame(frame) {
+        if (frame.mouthPosition === 'open' || frame.mouthPosition === 'wide') {
+          this.jeffMouth.classList.add('talking');
+        } else {
+          this.jeffMouth.classList.remove('talking');
+        }
+      }
+      
+      displayError(message) {
+        this.responseArea.innerHTML = `<p style="color: #e53e3e;">❌ Error: ${this.escapeHtml(message)}</p>`;
+      }
+      
+      updateStats(frameCount, processingTime) {
+        this.frameCount.textContent = `Frames: ${frameCount}`;
+        this.processingTime.textContent = `Time: ${processingTime.toFixed(2)}s`;
+      }
+      
+      updatePersonalityDisplay() {
+        const behavior = TRAIT_BEHAVIORS[this.currentPersonality];
+        this.personalityType.textContent = this.currentPersonality.toUpperCase();
+        
+        const intensity = 0.8;
+        const dots = Math.round(intensity * 5);
+        this.intensityLevel.textContent = '●'.repeat(dots) + '○'.repeat(5 - dots);
+        
+        document.querySelector('.personality-badge').style.background = behavior.color;
+      }
+      
+      escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+      
+      sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+    }
+
+    // Initialize Jeff Avatar
+    document.addEventListener('DOMContentLoaded', () => {
+      window.jeffAvatar = new JeffAvatar();
+      console.log('🎭 Jeff Barr Avatar initialized!');
+      console.log('Personality system based on agente_prueba.py');
+    });
+  </script>
+</body>
+</html>
+
