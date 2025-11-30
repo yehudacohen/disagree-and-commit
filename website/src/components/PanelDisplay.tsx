@@ -89,16 +89,28 @@ function ExpertAvatar({ expert, isSpeaking, frustrationLevel }: ExpertAvatarProp
         className={`expert-avatar ${baseColorClass} ${glowClass} ${isSpeaking ? 'speaking' : ''}`}
         data-expert-id={expert.id}
       >
-        {/* Avatar display - Lottie animation or fallback image */}
+        {/* Avatar display - Lottie animation or fallback */}
         <div className="avatar-display">
           {!loadError && animationData ? (
-            <Lottie
-              lottieRef={lottieRef}
-              animationData={animationData}
-              loop={true}
-              autoplay={true}
-              style={{ width: '100%', height: '100%' }}
-            />
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+              <Lottie
+                lottieRef={lottieRef}
+                animationData={animationData}
+                loop={true}
+                autoplay={true}
+                style={{ width: '100%', height: '100%' }}
+              />
+              {/* Overlay emoji for better visibility */}
+              <div style={{ 
+                position: 'absolute', 
+                fontSize: '4rem',
+                pointerEvents: 'none'
+              }}>
+                {expert.id === 'jeff' && '👨‍💼'}
+                {expert.id === 'swami' && '🚀'}
+                {expert.id === 'werner' && '🏗️'}
+              </div>
+            </div>
           ) : (
             <img 
               src={expert.avatarImage} 

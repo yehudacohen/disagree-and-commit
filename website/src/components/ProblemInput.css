@@ -30,6 +30,7 @@
   transition: all 0.2s ease;
   background: white;
   color: #1f2937;
+  box-sizing: border-box;
 }
 
 .problem-input:focus {
