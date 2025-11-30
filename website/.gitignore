@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# sst
+.sst
+sst-env.d.ts
+src/sst-env.d.ts
