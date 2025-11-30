@@ -1,0 +1,19 @@
+{
+  "problems": [
+    {
+      "id": "mars_currency",
+      "title": "Mars/Moon Digital Currency",
+      "statement": "How to build a robust digital currency system once we move to Mars or Moon? Consider: 8-22 minute communication delay with Earth, need for offline transactions, extreme reliability requirements, multi-planetary consensus, and AWS services architecture."
+    },
+    {
+      "id": "air_taxi_pollution",
+      "title": "Air Pollution Reduction via Flying Taxis",
+      "statement": "How to use AWS technology to build a movable air device like clear-air taxi to bring down air pollution? Consider: real-time air quality monitoring, route optimization for minimal emissions, fleet management at scale, predictive maintenance, and AWS IoT and analytics services."
+    },
+    {
+      "id": "personal_air_taxi",
+      "title": "Personal Air Taxi Safety System",
+      "statement": "Self-driving cars are good, but how to build an air taxi for each individual in a safe and secure manner leveraging AWS technology? Consider: geo-fencing and no-fly zones, real-time collision avoidance, weather-based routing, zero-accident architecture, regulatory compliance tracking, and AWS services for safety-critical systems."
+    }
+  ]
+}

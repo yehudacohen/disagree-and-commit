@@ -1,0 +1,3 @@
+bedrock-agentcore-runtime
+strands-agents
+boto3

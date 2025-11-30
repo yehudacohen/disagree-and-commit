@@ -1,0 +1,7 @@
+name: debate-orchestrator
+runtime: python3.11
+handler: app.debate_orchestrator
+memory: 2048
+timeout: 600
+environment:
+  MEMORY_ID: debate-memory
