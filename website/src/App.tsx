@@ -8,7 +8,7 @@ import { ArchitectureReveal } from './components/ArchitectureReveal';
 import AudioPlayer from './components/AudioPlayer';
 import { EXPERTS } from './config/experts';
 import { webSocketClient } from './services/WebSocketClient';
-import { isDemoMode, getDemoAudioUrl, shouldShowDemoBanner } from './config/demo';
+import { isDemoMode, getDemoAudioUrl, shouldShowDemoBanner, shouldShowFinaleAnimation, getArchitectureDiagramUrl } from './config/demo';
 import type { 
   FrustrationLevel, 
   DebateMessage, 
@@ -247,13 +247,50 @@ function App() {
     const addDemoMessage = () => {
       // Check if we've completed all rounds
       if (currentRound >= rounds.length) {
-        // Trigger finale after all messages
+        // Set up demo architecture
+        const architectureDiagramUrl = getArchitectureDiagramUrl();
+        const demoArchitecture = {
+          mermaidDiagram: architectureDiagramUrl 
+            ? `graph TD\n    A[Demo Architecture]\n    B[See diagram image below]\n    A --> B`
+            : `graph TD\n    A[User] -->|Submits Problem| B[API Gateway]\n    B --> C[WebSocket]\n    C --> D[Orchestrator Agent]\n    D --> E[Jeff Agent]\n    D --> F[Swami Agent]\n    D --> G[Werner Agent]\n    E --> H[Synthesis Agent]\n    F --> H\n    G --> H\n    H --> I[Architecture Diagram]\n    I --> J[S3 Assets]\n    J --> K[User Download]`,
+          costEstimate: {
+            monthly: 847.50,
+            satiricalNote: "This is what happens when three experts can't agree on anything.",
+            breakdown: [
+              { service: 'API Gateway + WebSocket', cost: 50, justification: 'Because Jeff insisted on simplicity' },
+              { service: 'Lambda Functions', cost: 120, justification: 'Swami wanted it fast and serverless' },
+              { service: 'DynamoDB Global Tables', cost: 350, justification: 'Werner demanded global scale from day one' },
+              { service: 'S3 + CloudFront', cost: 75, justification: 'For all those architecture diagrams' },
+              { service: 'Bedrock AI Models', cost: 250, justification: 'The agents need to argue somehow' },
+              { service: 'CloudWatch Logs', cost: 2.50, justification: 'To debug why they keep disagreeing' }
+            ]
+          },
+          expertEndorsements: {
+            jeff: "It's more complex than I wanted, but at least it works.",
+            swami: "We shipped it fast, even if Werner made us add unnecessary scaling.",
+            werner: "It will scale to millions of users. You're welcome."
+          },
+          assetsFolder: {
+            diagramPngUrl: architectureDiagramUrl || '',
+            mermaidSourceUrl: ''
+          }
+        };
+        
+        setFinalArchitecture(demoArchitecture);
+        
+        // Trigger finale after all messages (or skip if disabled)
         setTimeout(() => {
-          setIsFinaleTriggered(true);
-          setTimeout(() => {
+          if (shouldShowFinaleAnimation()) {
+            setIsFinaleTriggered(true);
+            setTimeout(() => {
+              setIsArchitectureRevealed(true);
+              setDebateStatus('completed');
+            }, 2000);
+          } else {
+            // Skip finale animation, go straight to architecture
             setIsArchitectureRevealed(true);
             setDebateStatus('completed');
-          }, 2000);
+          }
         }, 1000);
         return;
       }

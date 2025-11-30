@@ -41,6 +41,9 @@ The frustration meter progresses as each panelist speaks, increasing with each r
    export const DEMO_CONFIG: DemoAudioConfig = {
      enabled: true, // Enable demo mode
      showBanner: true, // Set to false to hide the demo banner
+     showFinaleAnimation: true, // Set to false to skip the finale animation
+     showPlayAudioButton: true, // Set to false to hide play audio buttons
+     architectureDiagramUrl: 'https://your-bucket.s3.amazonaws.com/architecture.png', // Optional: URL to final architecture diagram
      
      audioUrls: {
        jeff: {
@@ -102,6 +105,15 @@ Set to `true` to enable demo mode, `false` to use the live WebSocket backend.
 ### `showBanner`
 Set to `true` to show the orange "DEMO MODE" banner, `false` to hide it. Useful for presentations where you don't want to show it's a demo.
 
+### `showFinaleAnimation`
+Set to `true` to show the "Disagree and Commit" animation at the end, `false` to skip directly to the architecture reveal. Useful for faster demos.
+
+### `showPlayAudioButton`
+Set to `true` to show the play audio button on messages, `false` to hide it. Useful when you want audio to play automatically without user interaction.
+
+### `architectureDiagramUrl`
+Optional URL to an architecture diagram image (PNG, JPG, etc.) to display at the end instead of the Mermaid diagram. Example: `'https://your-bucket.s3.amazonaws.com/architecture.png'`
+
 ### `audioUrls`
 Configure MP3 URLs for each expert and each round. You can:
 - Provide URLs for all rounds for all experts
@@ -129,3 +141,6 @@ Simply set `enabled: false` in `src/config/demo.ts` to reconnect to the WebSocke
 - Round 4 reaches frustration level 4-5, triggering the finale
 - Demo mode is great for presentations, testing, or when the backend is unavailable
 - Set `showBanner: false` for a cleaner presentation experience
+- Set `showFinaleAnimation: false` to skip the animation and go straight to results
+- Set `showPlayAudioButton: false` to hide audio controls for a cleaner UI
+- Use `architectureDiagramUrl` to display a custom architecture diagram image at the end

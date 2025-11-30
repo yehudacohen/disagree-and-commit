@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { DebateMessage, StreamingMessage } from '../types';
 import { getExpertById } from '../config/experts';
+import { shouldShowPlayAudioButton } from '../config/demo';
 import './DebateDisplay.css';
 
 interface DebateDisplayProps {
@@ -95,8 +96,8 @@ function MessageBubble({ message, onPlayAudio }: MessageBubbleProps) {
           </div>
         )}
 
-        {/* Audio player button if audio is available */}
-        {message.audioUrl && onPlayAudio && (
+        {/* Audio player button if audio is available and not disabled */}
+        {message.audioUrl && onPlayAudio && shouldShowPlayAudioButton() && (
           <button 
             className="audio-play-button"
             onClick={() => onPlayAudio(message.audioUrl!)}

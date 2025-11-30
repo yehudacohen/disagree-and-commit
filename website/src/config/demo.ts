@@ -4,6 +4,9 @@
 export interface DemoAudioConfig {
   enabled: boolean;
   showBanner: boolean; // Flag to show/hide the demo banner
+  showFinaleAnimation: boolean; // Flag to show/hide the "disagree and commit" animation
+  showPlayAudioButton: boolean; // Flag to show/hide the play audio button
+  architectureDiagramUrl?: string; // URL to architecture diagram image to display at the end
   audioUrls: {
     [expertId: string]: {
       round1?: string; // Initial opinion
@@ -19,6 +22,9 @@ export interface DemoAudioConfig {
 export const DEMO_CONFIG: DemoAudioConfig = {
   enabled: true, // Set to true to enable demo mode
   showBanner: true, // Set to false to hide the demo banner
+  showFinaleAnimation: true, // Set to false to skip the "disagree and commit" animation
+  showPlayAudioButton: true, // Set to false to hide the play audio button
+  architectureDiagramUrl: undefined, // URL to architecture diagram image (e.g., 'https://your-bucket.s3.amazonaws.com/architecture.png')
   
   audioUrls: {
     jeff: {
@@ -63,4 +69,16 @@ export function isDemoMode(): boolean {
 
 export function shouldShowDemoBanner(): boolean {
   return DEMO_CONFIG.enabled && DEMO_CONFIG.showBanner;
+}
+
+export function shouldShowFinaleAnimation(): boolean {
+  return DEMO_CONFIG.enabled && DEMO_CONFIG.showFinaleAnimation;
+}
+
+export function shouldShowPlayAudioButton(): boolean {
+  return DEMO_CONFIG.enabled && DEMO_CONFIG.showPlayAudioButton;
+}
+
+export function getArchitectureDiagramUrl(): string | undefined {
+  return DEMO_CONFIG.enabled ? DEMO_CONFIG.architectureDiagramUrl : undefined;
 }

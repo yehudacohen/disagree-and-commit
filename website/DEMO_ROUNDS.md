@@ -70,6 +70,15 @@ Set to `true` to enable demo mode, `false` for live WebSocket mode.
 ### `showBanner`
 Set to `true` to show the orange "DEMO MODE" banner, `false` to hide it for presentations.
 
+### `showFinaleAnimation`
+Set to `true` to show the "Disagree and Commit" animation, `false` to skip directly to results.
+
+### `showPlayAudioButton`
+Set to `true` to show play audio buttons on messages, `false` to hide them for a cleaner UI.
+
+### `architectureDiagramUrl`
+Optional URL to a custom architecture diagram image to display at the end. If provided, this image will be shown instead of the generated Mermaid diagram.
+
 ## Timing
 
 - **Streaming delay**: 2 seconds (simulates typing)

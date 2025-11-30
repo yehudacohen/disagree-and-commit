@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
 import './ArchitectureReveal.css';
 import type { CostEstimate, AssetsFolder } from '../types';
+import { getArchitectureDiagramUrl } from '../config/demo';
 
 interface ArchitectureRevealProps {
   isRevealed: boolean;
@@ -184,7 +185,22 @@ export function ArchitectureReveal({
         
         {/* Mermaid Diagram Section */}
         <div className="diagram-section">
-          {renderError ? (
+          {getArchitectureDiagramUrl() ? (
+            // Show image from URL if provided in demo config
+            <div className="diagram-image-container">
+              <img 
+                src={getArchitectureDiagramUrl()} 
+                alt="Architecture Diagram"
+                className="architecture-diagram-image"
+                style={{
+                  maxWidth: '100%',
+                  height: 'auto',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
+                }}
+              />
+            </div>
+          ) : renderError ? (
             <div className="diagram-error">
               <p className="error-message">Failed to render diagram: {renderError}</p>
               <pre className="diagram-fallback">{mermaidDiagram}</pre>
