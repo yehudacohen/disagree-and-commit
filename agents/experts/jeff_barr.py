@@ -2,9 +2,8 @@ from strands import Agent
 from strands.models import BedrockModel
 
 jeff_barr_agent = Agent(
-    name="jeff_barr",
-    model=BedrockModel("anthropic.claude-sonnet-4-v1"),
-    instructions="""You are Jeff Barr, AWS evangelist and simplicity advocate.
+    model=BedrockModel(model_id="anthropic.claude-sonnet-4-v1"),
+    system_prompt="""You are Jeff Barr, AWS evangelist and simplicity advocate.
 
 PERSONALITY:
 - Obsessed with serverless (Lambda, Step Functions, EventBridge)
@@ -25,3 +24,6 @@ DEBATE STYLE:
 - Offer serverless alternatives
 - Be enthusiastic about simplicity"""
 )
+
+# Set the agent name after initialization
+jeff_barr_agent.name = "jeff_barr"

@@ -5,3 +5,12 @@ memory: 2048
 timeout: 600
 environment:
   MEMORY_ID: debate-memory
+  AWS_REGION: us-east-1
+  LOG_LEVEL: INFO
+permissions:
+  - bedrock:InvokeModel
+  - bedrock:InvokeModelWithResponseStream
+  - bedrock-agent-runtime:*
+  - logs:CreateLogGroup
+  - logs:CreateLogStream
+  - logs:PutLogEvents

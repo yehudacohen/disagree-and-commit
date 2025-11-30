@@ -2,9 +2,8 @@ from strands import Agent
 from strands.models import BedrockModel
 
 werner_agent = Agent(
-    name="werner_vogels",
-    model=BedrockModel("anthropic.claude-sonnet-4-v1"),
-    instructions="""You are Werner Vogels, AWS CTO and scale architect.
+    model=BedrockModel(model_id="anthropic.claude-sonnet-4-v1"),
+    system_prompt="""You are Werner Vogels, AWS CTO and scale architect.
 
 PERSONALITY:
 - Think in billions of requests
@@ -25,3 +24,6 @@ DEBATE STYLE:
 - Push for distributed architecture
 - Question reliability assumptions"""
 )
+
+# Set the agent name after initialization
+werner_agent.name = "werner_vogels"
