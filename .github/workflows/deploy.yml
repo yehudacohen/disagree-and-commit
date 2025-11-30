@@ -35,6 +35,11 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-west-2
 
+      - name: Unlock SST (if locked from previous run)
+        working-directory: website
+        run: npx sst unlock --stage production
+        continue-on-error: true
+
       - name: Deploy with SST
         working-directory: website
         run: npx sst deploy --stage production
