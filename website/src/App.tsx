@@ -8,7 +8,7 @@ import { ArchitectureReveal } from './components/ArchitectureReveal';
 import AudioPlayer from './components/AudioPlayer';
 import { EXPERTS } from './config/experts';
 import { webSocketClient } from './services/WebSocketClient';
-import { isDemoMode, getNextDemoAudioUrl, resetDemoAudioIndexes } from './config/demo';
+import { isDemoMode, getDemoAudioUrl, shouldShowDemoBanner } from './config/demo';
 import type { 
   FrustrationLevel, 
   DebateMessage, 
@@ -191,6 +191,142 @@ function App() {
     setIsArchitectureRevealed(true);
   }, []);
 
+  // Simulate demo debate with pre-recorded audio - 4 rounds
+  const simulateDemoDebate = useCallback(() => {
+    const expertIds = ['jeff', 'swami', 'werner'];
+    const rounds = [
+      {
+        name: 'Initial Opinions',
+        getContent: (expertId: string) => {
+          const opinions = {
+            jeff: "Let me share my initial thoughts on this problem. We need to keep things simple and maintainable. I'd recommend starting with a straightforward approach that we can iterate on.",
+            swami: "From my perspective, speed is critical here. We should leverage the latest technologies to ensure we can deliver results quickly and efficiently.",
+            werner: "I think we need to consider scale from day one. This solution needs to handle growth, and we should architect it with distributed systems in mind."
+          };
+          return opinions[expertId as keyof typeof opinions];
+        }
+      },
+      {
+        name: 'Disagreements',
+        getContent: (expertId: string) => {
+          const disagreements = {
+            jeff: "I have to disagree with the complexity being proposed here. Werner, your distributed approach is overkill for this use case. And Swami, chasing the latest tech isn't always the answer.",
+            swami: "Jeff, simplicity is great, but we can't sacrifice performance. And Werner, your scaling concerns are premature optimization. We need to move fast first.",
+            werner: "Both of you are missing the bigger picture. Jeff's simple approach won't scale, and Swami's speed-first mentality will create technical debt we'll regret."
+          };
+          return disagreements[expertId as keyof typeof disagreements];
+        }
+      },
+      {
+        name: 'Personal Callouts',
+        getContent: (expertId: string) => {
+          const callouts = {
+            jeff: "Werner, you always do this! Every problem becomes a distributed systems exercise. And Swami, you're so focused on the latest shiny object that you forget about the developers who have to maintain this.",
+            swami: "Jeff, your blog posts are great, but this isn't 2010 anymore. We need modern solutions. And Werner, not everything needs to be a white paper on scalability!",
+            werner: "Jeff, your simplicity obsession is holding us back. And Swami, speed without architecture is just creating problems faster. You both need to think bigger!"
+          };
+          return callouts[expertId as keyof typeof callouts];
+        }
+      },
+      {
+        name: 'Disagree and Commit',
+        getContent: (expertId: string) => {
+          const commits = {
+            jeff: "Look, I disagree with parts of this approach, but we need to move forward. I commit to supporting a solution that balances simplicity with the scale Werner wants and the speed Swami needs.",
+            swami: "I still think we're overcomplicating this, but I respect your perspectives. I commit to this hybrid approach - we'll start fast but build in the scalability hooks Werner insists on.",
+            werner: "Fine. I disagree with cutting corners, but I commit to this pragmatic solution. We'll build it Jeff's way initially, move at Swami's pace, and architect for scale as we grow."
+          };
+          return commits[expertId as keyof typeof commits];
+        }
+      }
+    ];
+    
+    let currentRound = 0;
+    let currentExpertIndex = 0;
+    
+    const addDemoMessage = () => {
+      // Check if we've completed all rounds
+      if (currentRound >= rounds.length) {
+        // Trigger finale after all messages
+        setTimeout(() => {
+          setIsFinaleTriggered(true);
+          setTimeout(() => {
+            setIsArchitectureRevealed(true);
+            setDebateStatus('completed');
+          }, 2000);
+        }, 1000);
+        return;
+      }
+      
+      const expertId = expertIds[currentExpertIndex];
+      const round = rounds[currentRound];
+      const roundNumber = currentRound + 1;
+      const audioUrl = getDemoAudioUrl(expertId, roundNumber);
+      
+      // Simulate expert speaking
+      setSpeakingExpertId(expertId);
+      
+      // Get content for this round and expert
+      const demoContent = round.getContent(expertId);
+      
+      // Simulate streaming message
+      setCurrentStreamingMessage({
+        expertId,
+        partialContent: demoContent
+      });
+      
+      // Complete message after delay
+      setTimeout(() => {
+        const newMessage: DebateMessage = {
+          id: `demo-msg-r${roundNumber}-${expertId}`,
+          expertId,
+          content: demoContent,
+          audioUrl,
+          timestamp: Date.now(),
+          isDisagreement: currentRound >= 1 // Rounds 2, 3, 4 are disagreements
+        };
+        
+        setMessages(prev => [...prev, newMessage]);
+        setCurrentStreamingMessage(null);
+        setSpeakingExpertId(null);
+        
+        // Play audio if available (gracefully ignore missing URLs)
+        if (audioUrl) {
+          setCurrentAudioUrl(audioUrl);
+          setCurrentAudioExpertId(expertId);
+        }
+        
+        // Update frustration level based on round and expert's response
+        // Frustration increases as rounds progress
+        const baseFrustration = currentRound + 1;
+        const frustrationVariation = currentExpertIndex * 0.3; // Slight variation per expert
+        const frustrationLevel = Math.min(5, Math.ceil(baseFrustration + frustrationVariation)) as FrustrationLevel;
+        
+        setFrustrationLevels(prev => ({
+          ...prev,
+          [expertId]: frustrationLevel
+        }));
+        
+        // Move to next expert
+        currentExpertIndex++;
+        
+        // If all experts have spoken in this round, move to next round
+        if (currentExpertIndex >= expertIds.length) {
+          currentExpertIndex = 0;
+          currentRound++;
+        }
+        
+        // Schedule next message
+        // Wait longer if audio is playing, shorter otherwise
+        const delay = audioUrl ? 6000 : 3000;
+        setTimeout(addDemoMessage, delay);
+      }, 2000);
+    };
+    
+    // Start the demo
+    addDemoMessage();
+  }, []);
+
   // Handle problem submission
   const handleProblemSubmit = useCallback(async (problem: string) => {
     console.log('[App] Problem submitted:', problem);
@@ -210,7 +346,6 @@ function App() {
     setIsFinaleTriggered(false);
     setIsArchitectureRevealed(false);
     setFinalArchitecture(null);
-    resetDemoAudioIndexes();
     
     try {
       if (isDemoMode()) {
@@ -229,78 +364,7 @@ function App() {
       setDebateStatus('pending');
       // Could show error message to user here
     }
-  }, [sessionId]);
-
-  // Simulate demo debate with pre-recorded audio
-  const simulateDemoDebate = useCallback(() => {
-    const expertIds = ['jeff', 'swami', 'werner'];
-    let messageCount = 0;
-    const maxMessages = 9; // 3 rounds of 3 experts
-    
-    const addDemoMessage = () => {
-      if (messageCount >= maxMessages) {
-        // Trigger finale after all messages
-        setTimeout(() => {
-          setIsFinaleTriggered(true);
-          setTimeout(() => {
-            setIsArchitectureRevealed(true);
-            setDebateStatus('completed');
-          }, 2000);
-        }, 1000);
-        return;
-      }
-      
-      const expertId = expertIds[messageCount % 3];
-      const audioUrl = getNextDemoAudioUrl(expertId);
-      
-      // Simulate expert speaking
-      setSpeakingExpertId(expertId);
-      
-      // Simulate streaming message
-      const demoContent = `This is a demo response from ${expertId}. In a real debate, this would be generated by AI based on the problem statement.`;
-      setCurrentStreamingMessage({
-        expertId,
-        partialContent: demoContent
-      });
-      
-      // Complete message after delay
-      setTimeout(() => {
-        const newMessage: DebateMessage = {
-          id: `demo-msg-${messageCount}`,
-          expertId,
-          content: demoContent,
-          audioUrl,
-          timestamp: Date.now(),
-          isDisagreement: messageCount % 2 === 1
-        };
-        
-        setMessages(prev => [...prev, newMessage]);
-        setCurrentStreamingMessage(null);
-        setSpeakingExpertId(null);
-        
-        // Play audio if available
-        if (audioUrl) {
-          setCurrentAudioUrl(audioUrl);
-          setCurrentAudioExpertId(expertId);
-        }
-        
-        // Update frustration level
-        const frustrationLevel = Math.min(5, Math.floor(messageCount / 3) + 1) as FrustrationLevel;
-        setFrustrationLevels(prev => ({
-          ...prev,
-          [expertId]: frustrationLevel
-        }));
-        
-        messageCount++;
-        
-        // Schedule next message
-        setTimeout(addDemoMessage, audioUrl ? 5000 : 3000); // Wait longer if audio is playing
-      }, 2000);
-    };
-    
-    // Start the demo
-    addDemoMessage();
-  }, []);
+  }, [sessionId, simulateDemoDebate]);
 
   // Handle audio playback
   const handlePlayAudio = useCallback((audioUrl: string) => {
@@ -324,7 +388,7 @@ function App() {
       <div className="hero">
         <h1>Disagree and Commit</h1>
         <p className="subtitle">Road to Reinvent Hackathon</p>
-        {isDemoMode() && (
+        {shouldShowDemoBanner() && (
           <div style={{
             background: 'rgba(255, 165, 0, 0.2)',
             border: '2px solid orange',
