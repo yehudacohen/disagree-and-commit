@@ -11,6 +11,7 @@ export default $config({
   },
   async run() {
     new sst.aws.StaticSite("DisagreeAndCommitSite", {
+      domain: "disagreeandcommit.chat",
       build: {
         command: "npm run build",
         output: "dist",
