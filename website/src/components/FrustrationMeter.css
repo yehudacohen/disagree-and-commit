@@ -1,0 +1,224 @@
+/* Frustration Meter Styles */
+
+.frustration-meter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.frustration-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+}
+
+.frustration-bars {
+  display: flex;
+  gap: 0.25rem;
+  align-items: flex-end;
+  height: 40px;
+}
+
+.frustration-bar {
+  width: 12px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.frustration-bar[data-level="1"] { height: 20%; }
+.frustration-bar[data-level="2"] { height: 40%; }
+.frustration-bar[data-level="3"] { height: 60%; }
+.frustration-bar[data-level="4"] { height: 80%; }
+.frustration-bar[data-level="5"] { height: 100%; }
+
+.frustration-level-text {
+  font-size: 0.625rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Color states */
+.frustration-low {
+  border-color: #10b981;
+}
+
+.frustration-low .frustration-label {
+  color: #059669;
+}
+
+.frustration-low .frustration-bar.active {
+  background: linear-gradient(to top, #10b981, #34d399);
+}
+
+.frustration-medium {
+  border-color: #f59e0b;
+}
+
+.frustration-medium .frustration-label {
+  color: #d97706;
+}
+
+.frustration-medium .frustration-bar.active {
+  background: linear-gradient(to top, #f59e0b, #fbbf24);
+}
+
+.frustration-high {
+  border-color: #ef4444;
+}
+
+.frustration-high .frustration-label {
+  color: #dc2626;
+}
+
+.frustration-high .frustration-bar.active {
+  background: linear-gradient(to top, #ef4444, #f87171);
+}
+
+.frustration-critical {
+  border-color: #dc2626;
+  background: rgba(254, 226, 226, 0.9);
+  animation: critical-pulse 0.5s ease-in-out infinite;
+}
+
+.frustration-critical .frustration-label {
+  color: #991b1b;
+  font-size: 0.875rem;
+  animation: critical-text-pulse 0.5s ease-in-out infinite;
+}
+
+.frustration-critical .frustration-bar.active {
+  background: linear-gradient(to top, #dc2626, #ef4444);
+  animation: critical-bar-pulse 0.5s ease-in-out infinite;
+}
+
+/* Animation for level transitions */
+.frustration-meter.animating {
+  transform: scale(1.05);
+}
+
+.frustration-meter.animating .frustration-bar.active {
+  animation: bar-grow 0.3s ease-out;
+}
+
+@keyframes bar-grow {
+  0% {
+    transform: scaleY(0.8);
+  }
+  50% {
+    transform: scaleY(1.1);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes critical-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.8), 0 0 30px rgba(220, 38, 38, 0.6);
+  }
+}
+
+@keyframes critical-text-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes critical-bar-pulse {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3);
+  }
+}
+
+/* Dramatic effects for high frustration (level 4+) */
+
+/* Screen shake effect */
+body.screen-shake {
+  animation: screen-shake 0.5s ease-in-out infinite;
+}
+
+@keyframes screen-shake {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-2px, -2px);
+  }
+  20% {
+    transform: translate(2px, 2px);
+  }
+  30% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(2px, -2px);
+  }
+  50% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  70% {
+    transform: translate(-2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  90% {
+    transform: translate(-2px, -2px);
+  }
+}
+
+/* Color shift effects approaching finale */
+body.color-shift-high {
+  animation: color-shift-high 2s ease-in-out infinite;
+}
+
+body.color-shift-critical {
+  animation: color-shift-critical 1s ease-in-out infinite;
+}
+
+@keyframes color-shift-high {
+  0%, 100% {
+    filter: hue-rotate(0deg) saturate(1);
+  }
+  50% {
+    filter: hue-rotate(10deg) saturate(1.2);
+  }
+}
+
+@keyframes color-shift-critical {
+  0%, 100% {
+    filter: hue-rotate(0deg) saturate(1) brightness(1);
+  }
+  25% {
+    filter: hue-rotate(-15deg) saturate(1.5) brightness(1.1);
+  }
+  50% {
+    filter: hue-rotate(15deg) saturate(1.5) brightness(0.9);
+  }
+  75% {
+    filter: hue-rotate(-15deg) saturate(1.5) brightness(1.1);
+  }
+}

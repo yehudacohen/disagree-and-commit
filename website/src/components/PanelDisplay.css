@@ -1,0 +1,134 @@
+/* Panel Display Styles */
+
+.panel-display {
+  width: 100%;
+  padding: 1.5rem 0;
+}
+
+.experts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.expert-avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.expert-avatar {
+  width: 100%;
+  max-width: 300px;
+  border: 4px solid;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* Speaking highlight effect with glowing border animation */
+.expert-avatar.speaking {
+  animation: glow-pulse 1.5s ease-in-out infinite;
+  border-width: 6px;
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px currentColor;
+  }
+  50% {
+    box-shadow: 0 0 40px currentColor, 0 0 60px currentColor;
+  }
+}
+
+/* Color-specific glow effects */
+.shadow-orange-glow {
+  box-shadow: 0 0 30px rgba(249, 115, 22, 0.6), 0 0 50px rgba(249, 115, 22, 0.4);
+}
+
+.shadow-blue-glow {
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 50px rgba(59, 130, 246, 0.4);
+}
+
+.shadow-purple-glow {
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.6), 0 0 50px rgba(168, 85, 247, 0.4);
+}
+
+/* Avatar display area */
+.avatar-display {
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: white;
+}
+
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Expert info */
+.expert-info {
+  text-align: center;
+}
+
+.expert-name {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0.5rem 0 0.25rem;
+  color: #1f2937;
+}
+
+.expert-title {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 0.75rem;
+  font-style: italic;
+}
+
+.expert-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-orange {
+  background-color: #fed7aa;
+  color: #9a3412;
+}
+
+.badge-blue {
+  background-color: #bfdbfe;
+  color: #1e3a8a;
+}
+
+.badge-purple {
+  background-color: #e9d5ff;
+  color: #581c87;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .experts-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .expert-avatar {
+    max-width: 100%;
+  }
+}
