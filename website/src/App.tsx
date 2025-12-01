@@ -1,5 +1,5 @@
 import './App.css'
-
+import JeffAvatar from './JeffAvatar';
 function App() {
   return (
     <div className="hero">
