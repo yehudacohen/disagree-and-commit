@@ -1,5 +1,5 @@
-bedrock-agentcore-runtime
 strands-agents
 boto3
-pytest
-hypothesis
+bedrock-agentcore
+requests
+strands

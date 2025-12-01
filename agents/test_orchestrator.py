@@ -4,6 +4,7 @@
 import asyncio
 import sys
 import os
+from unittest.mock import Mock, patch, AsyncMock
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -151,7 +152,7 @@ def test_requirements_coverage():
     print("✓ Requirement 2.5: Round 3 is consensus round")
     
     # Requirement 2.6: Trigger synthesis after rounds
-    assert 'synthesis_agent.run' in code, "Should trigger synthesis agent"
+    assert 'synthesis_agent(' in code, "Should trigger synthesis agent with correct pattern"
     assert 'get_full_context' in code, "Should retrieve full context for synthesis"
     print("✓ Requirement 2.6: Triggers Synthesis Agent after all rounds")
     
@@ -176,11 +177,385 @@ def test_requirements_coverage():
     print("  - Requirements 6.2: Context retrieval ✓")
 
 
+async def test_agent_invocation_with_mocks():
+    """Test orchestrator with mocked agents using correct response structure (Requirement 10.1, 10.2)."""
+    print("\nTesting orchestrator with mocked agents...")
+    
+    # Create mock response with correct structure (Requirement 10.1)
+    mock_response = Mock()
+    mock_response.message = {
+        'content': [
+            {'text': 'Mocked expert response'}
+        ]
+    }
+    
+    # Mock all three expert agents
+    with patch('orchestrator.app.jeff_barr_agent') as mock_jeff, \
+         patch('orchestrator.app.swami_agent') as mock_swami, \
+         patch('orchestrator.app.werner_agent') as mock_werner, \
+         patch('orchestrator.app.synthesis_agent') as mock_synthesis, \
+         patch('orchestrator.app.memory') as mock_memory:
+        
+        # Configure mocks to return correct response structure (Requirement 10.1)
+        mock_jeff.return_value = mock_response
+        mock_jeff.name = "jeff_barr"
+        mock_swami.return_value = mock_response
+        mock_swami.name = "swami"
+        mock_werner.return_value = mock_response
+        mock_werner.name = "werner_vogels"
+        
+        # Mock synthesis response with Mermaid diagram (Requirement 10.1)
+        mock_synthesis_response = Mock()
+        mock_synthesis_response.message = {
+            'content': [
+                {'text': '## Architecture\nTest architecture\n```mermaid\ngraph TD\n  A-->B\n```'}
+            ]
+        }
+        mock_synthesis.return_value = mock_synthesis_response
+        
+        # Mock memory operations with new methods (Requirement 10.2)
+        mock_memory.create_session.return_value = "test_session_12345678901234567890123"
+        mock_memory.get_context.return_value = "Previous context"
+        mock_memory.get_full_context.return_value = "Full debate context"
+        mock_memory.store_response.return_value = None
+        
+        # Test orchestrator with complete debate flow (Requirement 10.3)
+        result = await debate_orchestrator(
+            {"problem": "Test problem statement"},
+            {}
+        )
+        
+        # Verify response structure validation (Requirement 10.4)
+        assert result['status'] == 'complete', f"Expected complete status, got {result['status']}"
+        assert 'sessionId' in result, "Response missing sessionId"
+        assert 'synthesis' in result, "Response missing synthesis"
+        assert 'mermaidDiagram' in result, "Response missing mermaidDiagram"
+        assert 'actor_id' in result, "Response missing actor_id"
+        assert 'session_id' in result, "Response missing session_id"
+        
+        # Verify agents were called (3 rounds × 3 agents = 9 calls)
+        assert mock_jeff.call_count == 3, f"Jeff should be called 3 times, was called {mock_jeff.call_count}"
+        assert mock_swami.call_count == 3, f"Swami should be called 3 times, was called {mock_swami.call_count}"
+        assert mock_werner.call_count == 3, f"Werner should be called 3 times, was called {mock_werner.call_count}"
+        
+        # Verify synthesis was called once
+        assert mock_synthesis.call_count == 1, "Synthesis should be called once"
+        
+        # Verify memory operations were called correctly (Requirement 10.2)
+        assert mock_memory.create_session.call_count == 1, "create_session should be called once"
+        assert mock_memory.store_response.call_count == 9, "store_response should be called 9 times (3 rounds × 3 agents)"
+        assert mock_memory.get_context.call_count == 9, "get_context should be called 9 times"
+        assert mock_memory.get_full_context.call_count == 1, "get_full_context should be called once for synthesis"
+        
+        print("✓ Orchestrator with mocked agents verified")
+        print(f"  - Agents invoked with correct pattern (agent(prompt))")
+        print(f"  - Response structure validated (message['content'][0]['text'])")
+        print(f"  - Memory operations called correctly (create_session, store_response, get_context)")
+        print(f"  - Complete debate flow executed (3 rounds × 3 agents)")
+
+
+async def test_error_handling():
+    """Test orchestrator error handling for agent failures (Requirement 10.3, 10.4)."""
+    print("\nTesting orchestrator error handling...")
+    
+    # Test 1: Agent invocation failure (Requirement 10.4)
+    with patch('orchestrator.app.jeff_barr_agent') as mock_jeff, \
+         patch('orchestrator.app.swami_agent') as mock_swami, \
+         patch('orchestrator.app.werner_agent') as mock_werner, \
+         patch('orchestrator.app.synthesis_agent') as mock_synthesis, \
+         patch('orchestrator.app.memory') as mock_memory:
+        
+        # Configure first agent to fail
+        mock_jeff.side_effect = Exception("Agent invocation failed")
+        mock_jeff.name = "jeff_barr"
+        
+        # Other agents return valid responses
+        mock_response = Mock()
+        mock_response.message = {
+            'content': [
+                {'text': 'Mocked response'}
+            ]
+        }
+        mock_swami.return_value = mock_response
+        mock_swami.name = "swami"
+        mock_werner.return_value = mock_response
+        mock_werner.name = "werner_vogels"
+        
+        # Mock synthesis
+        mock_synthesis_response = Mock()
+        mock_synthesis_response.message = {
+            'content': [
+                {'text': '## Architecture\nTest\n```mermaid\ngraph TD\n  A-->B\n```'}
+            ]
+        }
+        mock_synthesis.return_value = mock_synthesis_response
+        
+        # Mock memory
+        mock_memory.create_session.return_value = "test_session_12345678901234567890123"
+        mock_memory.get_context.return_value = ""
+        mock_memory.get_full_context.return_value = "Context"
+        mock_memory.store_response.return_value = None
+        
+        # Test orchestrator - should handle error gracefully
+        result = await debate_orchestrator(
+            {"problem": "Test problem"},
+            {}
+        )
+        
+        # Should complete despite agent failure (Requirement 10.4)
+        assert result['status'] == 'complete', "Should complete despite agent failure"
+        
+        # Verify other agents were still called
+        assert mock_swami.call_count == 3, "Swami should be called 3 times"
+        assert mock_werner.call_count == 3, "Werner should be called 3 times"
+        
+        print("✓ Agent failure error handling verified")
+        print("  - Continues execution after agent failure")
+        print("  - Returns complete status")
+        print("  - Other agents still invoked")
+    
+    # Test 2: Invalid response structure (Requirement 10.4)
+    with patch('orchestrator.app.jeff_barr_agent') as mock_jeff, \
+         patch('orchestrator.app.swami_agent') as mock_swami, \
+         patch('orchestrator.app.werner_agent') as mock_werner, \
+         patch('orchestrator.app.synthesis_agent') as mock_synthesis, \
+         patch('orchestrator.app.memory') as mock_memory:
+        
+        # Configure agent to return invalid response structure
+        mock_invalid_response = Mock()
+        mock_invalid_response.message = {}  # Missing 'content' key
+        
+        mock_jeff.return_value = mock_invalid_response
+        mock_jeff.name = "jeff_barr"
+        
+        # Other agents return valid responses
+        mock_response = Mock()
+        mock_response.message = {
+            'content': [
+                {'text': 'Valid response'}
+            ]
+        }
+        mock_swami.return_value = mock_response
+        mock_swami.name = "swami"
+        mock_werner.return_value = mock_response
+        mock_werner.name = "werner_vogels"
+        
+        # Mock synthesis
+        mock_synthesis_response = Mock()
+        mock_synthesis_response.message = {
+            'content': [
+                {'text': '## Architecture\nTest\n```mermaid\ngraph TD\n  A-->B\n```'}
+            ]
+        }
+        mock_synthesis.return_value = mock_synthesis_response
+        
+        # Mock memory
+        mock_memory.create_session.return_value = "test_session_12345678901234567890123"
+        mock_memory.get_context.return_value = ""
+        mock_memory.get_full_context.return_value = "Context"
+        mock_memory.store_response.return_value = None
+        
+        # Test orchestrator - should handle invalid structure gracefully
+        result = await debate_orchestrator(
+            {"problem": "Test problem"},
+            {}
+        )
+        
+        # Should complete despite invalid response structure
+        assert result['status'] == 'complete', "Should complete despite invalid response structure"
+        
+        print("✓ Invalid response structure error handling verified")
+        print("  - Handles KeyError/TypeError gracefully")
+        print("  - Continues execution with fallback message")
+    
+    # Test 3: Memory operation failure (Requirement 10.3)
+    with patch('orchestrator.app.jeff_barr_agent') as mock_jeff, \
+         patch('orchestrator.app.swami_agent') as mock_swami, \
+         patch('orchestrator.app.werner_agent') as mock_werner, \
+         patch('orchestrator.app.synthesis_agent') as mock_synthesis, \
+         patch('orchestrator.app.memory') as mock_memory:
+        
+        # All agents return valid responses
+        mock_response = Mock()
+        mock_response.message = {
+            'content': [
+                {'text': 'Valid response'}
+            ]
+        }
+        mock_jeff.return_value = mock_response
+        mock_jeff.name = "jeff_barr"
+        mock_swami.return_value = mock_response
+        mock_swami.name = "swami"
+        mock_werner.return_value = mock_response
+        mock_werner.name = "werner_vogels"
+        
+        # Mock synthesis
+        mock_synthesis_response = Mock()
+        mock_synthesis_response.message = {
+            'content': [
+                {'text': '## Architecture\nTest\n```mermaid\ngraph TD\n  A-->B\n```'}
+            ]
+        }
+        mock_synthesis.return_value = mock_synthesis_response
+        
+        # Mock memory with store_response failing
+        mock_memory.create_session.return_value = "test_session_12345678901234567890123"
+        mock_memory.get_context.return_value = ""
+        mock_memory.get_full_context.return_value = "Context"
+        mock_memory.store_response.side_effect = Exception("Memory storage failed")
+        
+        # Test orchestrator - should handle memory failure gracefully
+        result = await debate_orchestrator(
+            {"problem": "Test problem"},
+            {}
+        )
+        
+        # Should complete despite memory failures
+        assert result['status'] == 'complete', "Should complete despite memory failures"
+        
+        print("✓ Memory operation failure error handling verified")
+        print("  - Continues execution after memory failure")
+        print("  - Returns complete status")
+    
+    # Test 4: Synthesis failure (Requirement 10.4)
+    with patch('orchestrator.app.jeff_barr_agent') as mock_jeff, \
+         patch('orchestrator.app.swami_agent') as mock_swami, \
+         patch('orchestrator.app.werner_agent') as mock_werner, \
+         patch('orchestrator.app.synthesis_agent') as mock_synthesis, \
+         patch('orchestrator.app.memory') as mock_memory:
+        
+        # All agents return valid responses
+        mock_response = Mock()
+        mock_response.message = {
+            'content': [
+                {'text': 'Valid response'}
+            ]
+        }
+        mock_jeff.return_value = mock_response
+        mock_jeff.name = "jeff_barr"
+        mock_swami.return_value = mock_response
+        mock_swami.name = "swami"
+        mock_werner.return_value = mock_response
+        mock_werner.name = "werner_vogels"
+        
+        # Mock synthesis to fail
+        mock_synthesis.side_effect = Exception("Synthesis failed")
+        
+        # Mock memory
+        mock_memory.create_session.return_value = "test_session_12345678901234567890123"
+        mock_memory.get_context.return_value = ""
+        mock_memory.get_full_context.return_value = "Context"
+        mock_memory.store_response.return_value = None
+        
+        # Test orchestrator - should return error status for synthesis failure
+        result = await debate_orchestrator(
+            {"problem": "Test problem"},
+            {}
+        )
+        
+        # Should return error status when synthesis fails
+        assert result['status'] == 'error', "Should return error status when synthesis fails"
+        assert 'error' in result, "Should include error message"
+        assert 'Synthesis failed' in result['error'], "Error should mention synthesis failure"
+        
+        print("✓ Synthesis failure error handling verified")
+        print("  - Returns error status for synthesis failure")
+        print("  - Includes descriptive error message")
+
+
+async def test_response_structure_validation():
+    """Test that orchestrator returns all required response fields (Requirement 10.4)."""
+    print("\nTesting response structure validation...")
+    
+    with patch('orchestrator.app.jeff_barr_agent') as mock_jeff, \
+         patch('orchestrator.app.swami_agent') as mock_swami, \
+         patch('orchestrator.app.werner_agent') as mock_werner, \
+         patch('orchestrator.app.synthesis_agent') as mock_synthesis, \
+         patch('orchestrator.app.memory') as mock_memory:
+        
+        # Configure all mocks with valid responses
+        mock_response = Mock()
+        mock_response.message = {
+            'content': [
+                {'text': 'Test response'}
+            ]
+        }
+        mock_jeff.return_value = mock_response
+        mock_jeff.name = "jeff_barr"
+        mock_swami.return_value = mock_response
+        mock_swami.name = "swami"
+        mock_werner.return_value = mock_response
+        mock_werner.name = "werner_vogels"
+        
+        mock_synthesis_response = Mock()
+        mock_synthesis_response.message = {
+            'content': [
+                {'text': '## Architecture\nTest\n```mermaid\ngraph TD\n  A-->B\n```'}
+            ]
+        }
+        mock_synthesis.return_value = mock_synthesis_response
+        
+        mock_memory.create_session.return_value = "test_session_12345678901234567890123"
+        mock_memory.get_context.return_value = ""
+        mock_memory.get_full_context.return_value = "Context"
+        mock_memory.store_response.return_value = None
+        
+        # Test successful completion
+        result = await debate_orchestrator(
+            {"problem": "Test problem", "actor_id": "test_actor"},
+            {}
+        )
+        
+        # Verify all required fields are present (Requirement 10.4)
+        required_fields = ['sessionId', 'actor_id', 'session_id', 'synthesis', 'mermaidDiagram', 'status']
+        for field in required_fields:
+            assert field in result, f"Response missing required field: {field}"
+        
+        # Verify field types
+        assert isinstance(result['sessionId'], str), "sessionId should be string"
+        assert isinstance(result['actor_id'], str), "actor_id should be string"
+        assert isinstance(result['session_id'], str), "session_id should be string"
+        assert isinstance(result['synthesis'], str), "synthesis should be string"
+        assert isinstance(result['mermaidDiagram'], str), "mermaidDiagram should be string"
+        assert result['status'] == 'complete', "status should be 'complete'"
+        
+        # Verify actor_id is passed through correctly
+        assert result['actor_id'] == 'test_actor', "actor_id should match input"
+        
+        print("✓ Response structure validation verified")
+        print("  - All required fields present")
+        print("  - Correct field types")
+        print("  - actor_id passed through correctly")
+    
+    # Test error response structure
+    with patch('orchestrator.app.memory') as mock_memory:
+        mock_memory.create_session.side_effect = Exception("Session creation failed")
+        
+        result = await debate_orchestrator(
+            {"problem": "Test problem"},
+            {}
+        )
+        
+        # Verify error response structure
+        assert result['status'] == 'error', "Should have error status"
+        assert 'error' in result, "Should include error field"
+        assert 'actor_id' in result, "Should include actor_id even on error"
+        assert 'session_id' in result, "Should include session_id even on error"
+        
+        print("✓ Error response structure validated")
+        print("  - Error status set correctly")
+        print("  - Error message included")
+        print("  - Required fields present even on error")
+
+
 async def run_async_tests():
     """Run all async tests."""
     await test_orchestrator_validation()
     await test_orchestrator_problem_by_id()
     await test_orchestrator_structure()
+    await test_agent_invocation_with_mocks()
+    await test_error_handling()
+    await test_response_structure_validation()
 
 
 if __name__ == "__main__":

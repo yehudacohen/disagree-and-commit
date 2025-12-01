@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test script for synthesis agent."""
 
-from synthesizer import synthesis_agent, extract_mermaid
+from synthesis.synthesizer import synthesis_agent, extract_mermaid
 
 
 def test_synthesis_agent_initialization():
