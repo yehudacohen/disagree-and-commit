@@ -21,9 +21,9 @@ export interface DemoAudioConfig {
 // Each expert has audio for each of the 4 rounds
 export const DEMO_CONFIG: DemoAudioConfig = {
   enabled: true, // Set to true to enable demo mode
-  showBanner: true, // Set to false to hide the demo banner
-  showFinaleAnimation: true, // Set to false to skip the "disagree and commit" animation
-  showPlayAudioButton: true, // Set to false to hide the play audio button
+  showBanner: false, // Set to false to hide the demo banner
+  showFinaleAnimation: false, // Set to false to skip the "disagree and commit" animation
+  showPlayAudioButton: false, // Set to false to hide the play audio button
   architectureDiagramUrl: undefined, // URL to architecture diagram image (e.g., 'https://your-bucket.s3.amazonaws.com/architecture.png')
   
   audioUrls: {
