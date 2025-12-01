@@ -180,7 +180,8 @@
 .endorsements-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  gap: 2rem;
+  padding: 0 1rem;
 }
 
 .endorsement-card {
@@ -189,6 +190,7 @@
   padding: 1.5rem;
   border: 2px solid;
   transition: transform 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .endorsement-card:hover {
