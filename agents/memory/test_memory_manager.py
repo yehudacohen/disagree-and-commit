@@ -15,6 +15,7 @@ class TestMemoryManager:
         with patch('boto3.client'):
             manager = MemoryManager()
             assert manager.memory_id == 'debate-memory'
+            assert manager.region == 'us-east-1'
             assert manager.max_retries == 3
             assert manager.base_delay == 1.0
             assert manager.max_delay == 10.0
@@ -25,6 +26,14 @@ class TestMemoryManager:
             manager = MemoryManager(memory_id='custom-memory')
             assert manager.memory_id == 'custom-memory'
     
+    def test_init_custom_region(self):
+        """Test MemoryManager initialization with custom region."""
+        with patch('boto3.client') as mock_boto:
+            manager = MemoryManager(region='us-west-2')
+            assert manager.region == 'us-west-2'
+            # Verify boto3 client was called with correct region
+            mock_boto.assert_called_once_with('bedrock-agent-runtime', region_name='us-west-2')
+    
     def test_create_session_format(self):
         """Test that create_session generates correct session ID format."""
         with patch('boto3.client') as mock_boto:
@@ -33,100 +42,101 @@ class TestMemoryManager:
             
             manager = MemoryManager()
             problem = "Test problem statement"
+            actor_id = "test_actor"
             
-            session_id = manager.create_session(problem)
+            session_id = manager.create_session(problem, actor_id)
             
             # Verify format: debate_{8-char-hash}_{timestamp}
-            parts = session_id.split('_')
-            assert parts[0] == 'debate'
-            assert len(parts[1]) == 8  # 8-char hash
-            # parts[2] should be ISO8601 timestamp
-            assert 'T' in parts[2]  # ISO8601 contains 'T'
+            assert session_id.startswith('debate_')
             
-            # Verify hash is correct
-            expected_hash = hashlib.md5(problem.encode()).hexdigest()[:8]
-            assert parts[1] == expected_hash
+            # Verify minimum length requirement (33 characters)
+            assert len(session_id) >= 33
     
-    def test_create_session_calls_api(self):
-        """Test that create_session calls the AgentCore Memory API."""
+    def test_create_session_no_api_call(self):
+        """Test that create_session does not call API (sessions are implicit)."""
         with patch('boto3.client') as mock_boto:
             mock_client = Mock()
             mock_boto.return_value = mock_client
             
             manager = MemoryManager()
             problem = "Test problem"
+            actor_id = "test_actor"
             
-            session_id = manager.create_session(problem)
+            session_id = manager.create_session(problem, actor_id)
             
-            # Verify API was called
-            mock_client.create_memory_session.assert_called_once()
-            call_args = mock_client.create_memory_session.call_args
-            assert call_args[1]['memoryId'] == 'debate-memory'
-            assert call_args[1]['sessionId'] == session_id
+            # Verify NO API was called (sessions are implicit)
+            mock_client.create_memory_session.assert_not_called()
+            assert session_id.startswith('debate_')
+            assert len(session_id) >= 33
     
     def test_store_response_with_metadata(self):
-        """Test that store_response stores correct metadata."""
+        """Test that store_response uses create_event API correctly."""
         with patch('boto3.client') as mock_boto:
             mock_client = Mock()
             mock_boto.return_value = mock_client
             
             manager = MemoryManager()
-            session_id = "debate_abc12345_2025-11-30T12:00:00"
-            agent_name = "jeff_barr"
+            session_id = "debate_abc12345_2025-11-30T12:00:00123"
+            actor_id = "jeff_barr"
             round_num = 2
             content = "Test response content"
             
-            manager.store_response(session_id, agent_name, round_num, content)
+            manager.store_response(session_id, actor_id, round_num, content)
             
-            # Verify API was called with correct parameters
-            mock_client.put_memory.assert_called_once()
-            call_args = mock_client.put_memory.call_args
+            # Verify create_event API was called with correct parameters
+            mock_client.create_event.assert_called_once()
+            call_args = mock_client.create_event.call_args
             
             assert call_args[1]['memoryId'] == 'debate-memory'
             assert call_args[1]['sessionId'] == session_id
+            assert call_args[1]['actorId'] == actor_id
             
-            memory_content = call_args[1]['memoryContent']
-            assert memory_content['userId'] == agent_name
-            assert memory_content['round'] == round_num
-            assert memory_content['content'] == content
-            assert 'timestamp' in memory_content
+            # Verify message format
+            messages = call_args[1]['messages']
+            assert len(messages) == 2
+            assert messages[0]['role'] == 'USER'
+            assert f'Round {round_num}' in messages[0]['text']
+            assert messages[1]['role'] == 'ASSISTANT'
+            assert messages[1]['text'] == content
     
     def test_get_context_formats_correctly(self):
-        """Test that get_context formats memories correctly."""
+        """Test that get_context uses retrieve_memory API and formats correctly."""
         with patch('boto3.client') as mock_boto:
             mock_client = Mock()
             mock_boto.return_value = mock_client
             
-            # Mock response from get_memory
-            mock_client.get_memory.return_value = {
+            # Mock response from retrieve_memory with new structure
+            mock_client.retrieve_memory.return_value = {
                 'memories': [
                     {
-                        'userId': 'jeff_barr',
-                        'round': 1,
-                        'content': 'First response'
+                        'content': {
+                            'text': 'First response'
+                        }
                     },
                     {
-                        'userId': 'swami',
-                        'round': 1,
-                        'content': 'Second response'
+                        'content': {
+                            'text': 'Second response'
+                        }
                     }
                 ]
             }
             
             manager = MemoryManager()
-            session_id = "debate_abc12345_2025-11-30T12:00:00"
+            session_id = "debate_abc12345_2025-11-30T12:00:00123"
+            actor_id = "test_actor"
             
-            context = manager.get_context(session_id)
+            context = manager.get_context(session_id, actor_id)
             
             # Verify format
-            expected = "[jeff_barr - Round 1]: First response\n\n[swami - Round 1]: Second response"
+            expected = "First response\n\nSecond response"
             assert context == expected
             
-            # Verify API was called
-            mock_client.get_memory.assert_called_once()
-            call_args = mock_client.get_memory.call_args
+            # Verify retrieve_memory API was called
+            mock_client.retrieve_memory.assert_called_once()
+            call_args = mock_client.retrieve_memory.call_args
             assert call_args[1]['memoryId'] == 'debate-memory'
             assert call_args[1]['sessionId'] == session_id
+            assert call_args[1]['actorId'] == actor_id
             assert call_args[1]['maxResults'] == 50
     
     def test_get_context_empty_memories(self):
@@ -135,71 +145,53 @@ class TestMemoryManager:
             mock_client = Mock()
             mock_boto.return_value = mock_client
             
-            mock_client.get_memory.return_value = {'memories': []}
+            mock_client.retrieve_memory.return_value = {'memories': []}
             
             manager = MemoryManager()
-            context = manager.get_context("test_session")
+            context = manager.get_context("test_session", "test_actor")
             
             assert context == ""
     
-    def test_get_full_context_calls_get_context(self):
-        """Test that get_full_context delegates to get_context."""
+    def test_get_full_context_retrieves_all_memories(self):
+        """Test that get_full_context uses retrieve_memory with higher limit."""
         with patch('boto3.client') as mock_boto:
             mock_client = Mock()
             mock_boto.return_value = mock_client
             
-            mock_client.get_memory.return_value = {
+            mock_client.retrieve_memory.return_value = {
                 'memories': [
-                    {'userId': 'jeff_barr', 'round': 1, 'content': 'Test'}
+                    {'content': {'text': 'Test response'}}
                 ]
             }
             
             manager = MemoryManager()
-            session_id = "test_session"
+            session_id = "test_session_12345678901234567890123"
+            actor_id = "test_actor"
             
-            full_context = manager.get_full_context(session_id)
-            context = manager.get_context(session_id)
+            full_context = manager.get_full_context(session_id, actor_id)
             
-            assert full_context == context
+            assert full_context == "Test response"
+            
+            # Verify retrieve_memory was called with maxResults=100
+            mock_client.retrieve_memory.assert_called_once()
+            call_args = mock_client.retrieve_memory.call_args
+            assert call_args[1]['maxResults'] == 100
     
-    def test_retry_logic_success_on_second_attempt(self):
-        """Test that retry logic succeeds on second attempt."""
+    def test_create_session_no_retry_needed(self):
+        """Test that create_session generates ID without API calls."""
         with patch('boto3.client') as mock_boto:
             mock_client = Mock()
             mock_boto.return_value = mock_client
             
-            # Fail first time, succeed second time
-            mock_client.create_memory_session.side_effect = [
-                Exception("Transient error"),
-                None
-            ]
-            
             manager = MemoryManager()
             
-            # Should succeed after retry
-            with patch('time.sleep'):  # Mock sleep to speed up test
-                session_id = manager.create_session("Test problem")
+            # Should succeed immediately (no API call)
+            session_id = manager.create_session("Test problem", "test_actor")
             
             assert session_id.startswith('debate_')
-            assert mock_client.create_memory_session.call_count == 2
-    
-    def test_retry_logic_fails_after_max_retries(self):
-        """Test that retry logic raises exception after max retries."""
-        with patch('boto3.client') as mock_boto:
-            mock_client = Mock()
-            mock_boto.return_value = mock_client
-            
-            # Always fail
-            mock_client.create_memory_session.side_effect = Exception("Persistent error")
-            
-            manager = MemoryManager()
-            
-            # Should raise exception after 3 retries
-            with patch('time.sleep'):  # Mock sleep to speed up test
-                with pytest.raises(Exception, match="Persistent error"):
-                    manager.create_session("Test problem")
-            
-            assert mock_client.create_memory_session.call_count == 3
+            assert len(session_id) >= 33
+            # No API calls should be made
+            mock_client.create_memory_session.assert_not_called()
     
     def test_store_response_retry_logic(self):
         """Test that store_response has retry logic."""
@@ -208,18 +200,18 @@ class TestMemoryManager:
             mock_boto.return_value = mock_client
             
             # Fail first time, succeed second time
-            mock_client.put_memory.side_effect = [
+            mock_client.create_event.side_effect = [
                 Exception("Transient error"),
-                None
+                {}
             ]
             
             manager = MemoryManager()
             
             # Should succeed after retry
             with patch('time.sleep'):
-                manager.store_response("session", "jeff_barr", 1, "content")
+                manager.store_response("session_12345678901234567890123", "jeff_barr", 1, "content")
             
-            assert mock_client.put_memory.call_count == 2
+            assert mock_client.create_event.call_count == 2
     
     def test_get_context_retry_logic(self):
         """Test that get_context has retry logic."""
@@ -228,7 +220,7 @@ class TestMemoryManager:
             mock_boto.return_value = mock_client
             
             # Fail first time, succeed second time
-            mock_client.get_memory.side_effect = [
+            mock_client.retrieve_memory.side_effect = [
                 Exception("Transient error"),
                 {'memories': []}
             ]
@@ -237,10 +229,10 @@ class TestMemoryManager:
             
             # Should succeed after retry
             with patch('time.sleep'):
-                context = manager.get_context("session")
+                context = manager.get_context("session_12345678901234567890123", "test_actor")
             
             assert context == ""
-            assert mock_client.get_memory.call_count == 2
+            assert mock_client.retrieve_memory.call_count == 2
 
 
 if __name__ == '__main__':

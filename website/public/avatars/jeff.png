@@ -1,0 +1,6 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="#fed7aa"/>
+  <circle cx="100" cy="80" r="40" fill="#9a3412"/>
+  <rect x="60" y="130" width="80" height="60" rx="10" fill="#9a3412"/>
+  <text x="100" y="185" font-family="Arial" font-size="14" fill="#fff" text-anchor="middle">Jeff Barr</text>
+</svg>

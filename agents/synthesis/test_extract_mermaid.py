@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test script for extract_mermaid utility function."""
 
-from synthesizer import extract_mermaid
+from synthesis.synthesizer import extract_mermaid
 
 
 def test_valid_mermaid_block():

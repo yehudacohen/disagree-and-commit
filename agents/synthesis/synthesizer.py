@@ -1,9 +1,19 @@
 import re
+import logging
 from strands import Agent
-from strands.models import BedrockModel
+from strands.models.bedrock import BedrockModel
+
+# Get logger instance for this module
+logger = logging.getLogger(__name__)
+
+logger.info("Initializing synthesis agent")
 
 synthesis_agent = Agent(
-    model=BedrockModel(model_id="anthropic.claude-sonnet-4-v1"),
+    model=BedrockModel(
+        model_id="us.anthropic.claude-sonnet-4-20250514-v1:0",
+        temperature=0.7,
+        max_tokens=2048
+    ),
     system_prompt="""Synthesize expert debate into final architecture.
 
 INPUT: All debate rounds from three experts
@@ -37,8 +47,6 @@ FORMAT:
 ## Trade-offs
 [Analysis of competing concerns]"""
 )
-
-# Set the agent name after initialization
 synthesis_agent.name = "synthesis"
 
 
@@ -66,6 +74,9 @@ def extract_mermaid(synthesis_output: str) -> str:
     match = re.search(pattern, synthesis_output, re.DOTALL)
     
     if match:
-        return match.group(1).strip()
+        diagram = match.group(1).strip()
+        logger.info(f"Successfully extracted Mermaid diagram ({len(diagram)} characters)")
+        return diagram
     
+    logger.warning("No Mermaid diagram found in synthesis output")
     return ""

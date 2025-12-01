@@ -9,11 +9,11 @@
   - Add dependencies: `lottie-react`, `mermaid`, `fast-check` (for testing)
   - _Requirements: 1.1, 3.2_
 
-- [ ] 2. Define TypeScript types and expert configuration
-  - [ ] 2.1 Create type definitions for Expert, FrustrationLevel, DebateMessage, WebSocketMessage
+- [x] 2. Define TypeScript types and expert configuration
+  - [x] 2.1 Create type definitions for Expert, FrustrationLevel, DebateMessage, WebSocketMessage
     - Define all interfaces from design document in `src/types/`
     - _Requirements: 1.1, 3.2, 4.3_
-  - [ ] 2.2 Create expert configuration constants
+  - [x] 2.2 Create expert configuration constants
     - Define EXPERTS array with Jeff, Swami, Werner configurations
     - Include color schemes, catchphrases, badges
     - _Requirements: 8.1, 8.2, 8.3_
@@ -23,25 +23,25 @@
 
 ## Phase 2: Core UI Components
 
-- [ ] 3. Implement PanelDisplay component
-  - [ ] 3.1 Create PanelDisplay with horizontal grid layout for 3 experts
+- [x] 3. Implement PanelDisplay component
+  - [x] 3.1 Create PanelDisplay with horizontal grid layout for 3 experts
     - Render expert avatars with static images as fallback
     - Apply expert-specific color themes (orange, blue, purple)
     - _Requirements: 1.1, 1.2_
-  - [ ] 3.2 Add Lottie animation integration
+  - [x] 3.2 Add Lottie animation integration
     - Integrate lottie-react for avatar animations
     - Implement idle, speaking, and frustrated animation states
     - _Requirements: 1.2, 1.3_
-  - [ ] 3.3 Implement speaking highlight effect
+  - [x] 3.3 Implement speaking highlight effect
     - Add glowing border animation when expert is speaking
     - _Requirements: 1.2_
 
-- [ ] 4. Implement FrustrationMeter component
-  - [ ] 4.1 Create visual frustration indicator (1-5 levels)
+- [x] 4. Implement FrustrationMeter component
+  - [x] 4.1 Create visual frustration indicator (1-5 levels)
     - Display frustration level per expert
     - Animate transitions between levels
     - _Requirements: 1.4, 5.1, 5.2_
-  - [ ] 4.2 Add dramatic effects for high frustration
+  - [x] 4.2 Add dramatic effects for high frustration
     - Implement screen shake at level 4+
     - Add color shift effects approaching finale
     - _Requirements: 5.4_
@@ -49,12 +49,12 @@
     - **Property 4: Frustration Display Consistency**
     - **Validates: Requirements 5.2, 5.4**
 
-- [ ] 5. Implement ProblemInput component
-  - [ ] 5.1 Create text input with placeholder and submit button
+- [x] 5. Implement ProblemInput component
+  - [x] 5.1 Create text input with placeholder and submit button
     - Style "Summon the Panel" button
     - Add loading state with "Assembling the panel..." text
     - _Requirements: 2.1, 2.2_
-  - [ ] 5.2 Implement input state management
+  - [x] 5.2 Implement input state management
     - Disable input during debate
     - Re-enable after debate concludes
     - _Requirements: 2.2, 2.3_
@@ -67,32 +67,32 @@
 
 ## Phase 3: Debate Display & Real-time Features
 
-- [ ] 7. Implement DebateDisplay component
-  - [ ] 7.1 Create speech bubble layout with expert colors
+- [x] 7. Implement DebateDisplay component
+  - [x] 7.1 Create speech bubble layout with expert colors
     - Style bubbles with expert signature colors
     - Add expert badges ("Keep it Simple", "Ship It!", "Scale or Fail")
     - _Requirements: 3.2, 8.1, 8.2, 8.3_
-  - [ ] 7.2 Implement typewriter streaming effect
+  - [x] 7.2 Implement typewriter streaming effect
     - Stream text word-by-word as it arrives
     - Auto-scroll to keep latest content visible
     - _Requirements: 3.1, 3.3_
-  - [ ] 7.3 Add catchphrase display for disagreements
+  - [x] 7.3 Add catchphrase display for disagreements
     - Show "But why?", "Just ship it!", "Won't scale!" on disagreements
     - _Requirements: 8.4_
   - [ ]* 7.4 Write property test for expert catchphrase display
     - **Property 6: Expert Catchphrase Display**
     - **Validates: Requirements 8.4**
 
-- [ ] 8. Implement WebSocketClient service
-  - [ ] 8.1 Create WebSocket connection manager
+- [x] 8. Implement WebSocketClient service
+  - [x] 8.1 Create WebSocket connection manager
     - Connect to API Gateway WebSocket endpoint
     - Handle connection lifecycle (connect, disconnect)
     - _Requirements: 4.1, 4.4_
-  - [ ] 8.2 Implement message sending with action routing
+  - [x] 8.2 Implement message sending with action routing
     - Send messages with `action` field for route selection
     - Format submitProblem payload correctly
     - _Requirements: 4.2_
-  - [ ] 8.3 Implement message receiving and routing
+  - [x] 8.3 Implement message receiving and routing
     - Parse incoming message types
     - Route to appropriate UI handlers
     - _Requirements: 4.3_
@@ -100,8 +100,8 @@
     - **Property 3: WebSocket Message Routing**
     - **Validates: Requirements 4.3**
 
-- [ ] 9. Implement AudioPlayer component
-  - [ ] 9.1 Create audio player for Nova Sonic responses
+- [x] 9. Implement AudioPlayer component
+  - [x] 9.1 Create audio player for Nova Sonic responses
     - Play audio URLs from S3
     - Handle autoplay and completion callbacks
     - _Requirements: 3.1_
@@ -111,59 +111,59 @@
 
 ## Phase 4: Finale & Architecture Reveal
 
-- [ ] 11. Implement "Disagree and Commit" finale sequence
-  - [ ] 11.1 Create finale trigger logic
+- [x] 11. Implement "Disagree and Commit" finale sequence
+  - [x] 11.1 Create finale trigger logic
     - Detect when any expert reaches frustration level 5
     - Trigger dramatic animation sequence
     - _Requirements: 5.3_
-  - [ ] 11.2 Add finale visual effects
+  - [x] 11.2 Add finale visual effects
     - Implement dramatic transition animation
     - Add "DISAGREE AND COMMIT" text reveal
     - _Requirements: 6.1_
 
-- [ ] 12. Implement ArchitectureReveal component
-  - [ ] 12.1 Create Mermaid diagram renderer
+- [x] 12. Implement ArchitectureReveal component
+  - [x] 12.1 Create Mermaid diagram renderer
     - Integrate mermaid.js library
     - Render architecture diagram from string
     - _Requirements: 6.2_
-  - [ ] 12.2 Add cost estimate display
+  - [x] 12.2 Add cost estimate display
     - Show satirical monthly cost breakdown
     - Display service-by-service justifications
     - _Requirements: 6.3_
-  - [ ] 12.3 Add expert endorsement quotes
+  - [x] 12.3 Add expert endorsement quotes
     - Display each expert's reluctant agreement
     - _Requirements: 6.4_
   - [ ]* 12.4 Write property test for Mermaid diagram validity
     - **Property 5: Mermaid Diagram Validity**
     - **Validates: Requirements 6.2**
 
-- [ ] 13. Implement design assets download
-  - [ ] 13.1 Create diagram export functionality
+- [x] 13. Implement design assets download
+  - [x] 13.1 Create diagram export functionality
     - Export Mermaid diagram as PNG
     - Trigger browser download
     - _Requirements: 7.1, 7.2_
-  - [ ] 13.2 Add download success feedback
+  - [x] 13.2 Add download success feedback
     - Show success message on completion
     - _Requirements: 7.3_
 
 ## Phase 5: Integration & Polish
 
-- [ ] 14. Create main App component and wire everything together
-  - [ ] 14.1 Implement main application state management
+- [x] 14. Create main App component and wire everything together
+  - [x] 14.1 Implement main application state management
     - Manage debate state (pending, in_progress, completed)
     - Track current speaking expert, frustration levels, messages
     - _Requirements: All_
-  - [ ] 14.2 Connect all components with WebSocket events
+  - [x] 14.2 Connect all components with WebSocket events
     - Wire WebSocket messages to UI state updates
     - Handle full debate flow from submit to reveal
     - _Requirements: All_
 
-- [ ] 15. Add placeholder Lottie animations and assets
-  - [ ] 15.1 Create or source Lottie animation files
+- [x] 15. Add placeholder Lottie animations and assets
+  - [x] 15.1 Create or source Lottie animation files
     - Add idle, speaking, frustrated animations for each expert
     - Place in `public/lottie/` directory
     - _Requirements: 1.2, 1.3_
-  - [ ] 15.2 Add expert avatar images
+  - [x] 15.2 Add expert avatar images
     - Add placeholder images for Jeff, Swami, Werner
     - Place in `public/avatars/` directory
     - _Requirements: 1.1_
