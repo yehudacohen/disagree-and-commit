@@ -1,0 +1,322 @@
+/* WarnerAvatar.css - Styles for Warner character avatar */
+
+.warner-avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
+.warner-avatar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Head */
+.avatar-head {
+  width: 60%;
+  height: 55%;
+  background: #f5d5b8;
+  border-radius: 50% 50% 45% 45%;
+  position: relative;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+/* Bald head - shiny top */
+.bald-head {
+  position: absolute;
+  top: -2%;
+  left: 10%;
+  right: 10%;
+  height: 35%;
+  background: linear-gradient(135deg, #f5d5b8 0%, #ffe8d1 40%, #f5d5b8 100%);
+  border-radius: 50% 50% 0 0;
+  box-shadow: 
+    inset -5px -5px 10px rgba(255, 255, 255, 0.5),
+    inset 5px 5px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Shine effect on bald head */
+.bald-head::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  right: 25%;
+  width: 30%;
+  height: 25%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+/* Eyebrows - gray/white */
+.eyebrows {
+  position: absolute;
+  top: 32%;
+  left: 15%;
+  right: 15%;
+  height: 8%;
+}
+
+.eyebrow {
+  position: absolute;
+  width: 35%;
+  height: 100%;
+  background: linear-gradient(90deg, #d0d0d0 0%, #e8e8e8 50%, #d0d0d0 100%);
+  border-radius: 50% 50% 0 0;
+}
+
+.eyebrow.left {
+  left: 0;
+  transform: rotate(-5deg);
+}
+
+.eyebrow.right {
+  right: 0;
+  transform: rotate(5deg);
+}
+
+/* Eyes */
+.eyes {
+  position: absolute;
+  top: 42%;
+  left: 18%;
+  right: 18%;
+  height: 12%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.eye {
+  width: 18%;
+  height: 100%;
+  background: #4a4a4a;
+  border-radius: 50%;
+  position: relative;
+  animation: blink 5s infinite;
+}
+
+.eye::after {
+  content: '';
+  position: absolute;
+  width: 35%;
+  height: 35%;
+  background: white;
+  border-radius: 50%;
+  top: 25%;
+  left: 30%;
+}
+
+@keyframes blink {
+  0%, 48%, 52%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.1); }
+}
+
+/* Nose */
+.nose {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14%;
+  height: 12%;
+  background: linear-gradient(135deg, #e8c4a0 0%, #f5d5b8 100%);
+  border-radius: 0 0 50% 50%;
+  box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Mouth - serious expression */
+.mouth {
+  position: absolute;
+  bottom: 28%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 35%;
+  height: 6%;
+  background: #c9896b;
+  border-radius: 2px;
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* White/gray beard */
+.beard {
+  position: absolute;
+  bottom: 8%;
+  left: 25%;
+  right: 25%;
+  height: 25%;
+  background: linear-gradient(180deg, 
+    rgba(240, 240, 240, 0.9) 0%, 
+    rgba(220, 220, 220, 0.95) 30%,
+    rgba(230, 230, 230, 1) 100%);
+  border-radius: 0 0 50% 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* Beard texture */
+.beard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    rgba(200, 200, 200, 0.3) 1px,
+    transparent 2px
+  );
+  border-radius: 0 0 50% 50%;
+}
+
+/* Body - Black shirt */
+.avatar-body {
+  position: absolute;
+  bottom: -35%;
+  width: 80%;
+  height: 40%;
+  position: relative;
+}
+
+.black-shirt {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 
+    inset 0 2px 10px rgba(255, 255, 255, 0.05),
+    0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Shirt collar */
+.collar {
+  position: absolute;
+  top: 0;
+  width: 25%;
+  height: 30%;
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+  clip-path: polygon(100% 0, 100% 100%, 50% 80%, 0 0);
+}
+
+.collar.left {
+  left: 25%;
+  transform: rotate(-10deg);
+}
+
+.collar.right {
+  right: 25%;
+  transform: rotate(10deg) scaleX(-1);
+}
+
+/* Arms with gestures */
+.arm {
+  position: absolute;
+  width: 18%;
+  height: 70%;
+  background: linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%);
+  border-radius: 10px;
+  top: 20%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.arm.left {
+  left: -12%;
+  transform-origin: top center;
+  animation: armGestureLeft 4s ease-in-out infinite;
+}
+
+.arm.right {
+  right: -12%;
+  transform-origin: top center;
+  animation: armGestureRight 4s ease-in-out infinite;
+}
+
+@keyframes armGestureLeft {
+  0%, 100% { transform: rotate(-20deg); }
+  50% { transform: rotate(-35deg); }
+}
+
+@keyframes armGestureRight {
+  0%, 100% { transform: rotate(20deg); }
+  50% { transform: rotate(35deg); }
+}
+
+/* Hands */
+.hand {
+  position: absolute;
+  width: 12%;
+  height: 15%;
+  background: #f5d5b8;
+  border-radius: 50%;
+  bottom: 5%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hand.left {
+  left: -8%;
+  animation: handPointLeft 4s ease-in-out infinite;
+}
+
+.hand.right {
+  right: -8%;
+  animation: handPointRight 4s ease-in-out infinite;
+}
+
+@keyframes handPointLeft {
+  0%, 100% { transform: rotate(-10deg) translateY(0); }
+  50% { transform: rotate(-20deg) translateY(-5%); }
+}
+
+@keyframes handPointRight {
+  0%, 100% { transform: rotate(10deg) translateY(0); }
+  50% { transform: rotate(20deg) translateY(-5%); }
+}
+
+/* Talking animation */
+.warner-avatar-container.talking .mouth {
+  animation: mouthTalk 0.4s ease-in-out infinite;
+}
+
+@keyframes mouthTalk {
+  0%, 100% { 
+    height: 6%;
+    transform: translateX(-50%);
+  }
+  50% { 
+    height: 10%;
+    transform: translateX(-50%);
+  }
+}
+
+.warner-avatar-container.talking .avatar-head {
+  animation: headTalk 0.6s ease-in-out infinite;
+}
+
+@keyframes headTalk {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-3%) rotate(-2deg); }
+  75% { transform: translateY(-3%) rotate(2deg); }
+}
+
+.warner-avatar-container.talking .arm {
+  animation-duration: 1s !important;
+}
+
+/* Idle breathing */
+.warner-avatar-container.idle .avatar-head {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.warner-avatar-container.idle .avatar-body {
+  animation: bodyBreathe 3s ease-in-out infinite;
+}
+
+@keyframes bodyBreathe {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.03); }
+}
