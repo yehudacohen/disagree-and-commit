@@ -28,22 +28,22 @@ export const DEMO_CONFIG: DemoAudioConfig = {
   
   audioUrls: {
     jeff: {
-      round1: undefined, // Initial opinion on how to solve the problem
-      round2: undefined, // Disagreement with other panelists
-      round3: undefined, // Personal callout based on personality
-      round4: undefined, // Disagree and commit to one solution
+      round1: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round1_jeff.mp3',
+      round2: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round2_jeff.mp3',
+      round3: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round3_jeff.mp3',
+      round4: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round4_jeff.mp3',
     },
     swami: {
-      round1: undefined,
-      round2: undefined,
-      round3: undefined,
-      round4: undefined,
+      round1: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round1_swami.mp3',
+      round2: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round2_swami.mp3',
+      round3: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round3_swami.mp3',
+      round4: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round4_swami.mp3',
     },
     werner: {
-      round1: 'https://road-to-reinvent-redteam.s3.amazonaws.com/debate_fast_3min.mp3',
-      round2: undefined,
-      round3: undefined,
-      round4: undefined,
+      round1: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round1_werner.mp3',
+      round2: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round2_werner.mp3',
+      round3: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round3_werner.mp3',
+      round4: 'https://road-to-reinvent-redteam.s3.amazonaws.com/audio/round4_werner.mp3',
     },
   },
 };

@@ -17,6 +17,13 @@ import type {
   AssetsFolder
 } from './types';
 
+// Extend window type for demo mode
+declare global {
+  interface Window {
+    __scheduleNextDemoMessage?: () => void;
+  }
+}
+
 function App() {
   // Debate state management
   const [debateStatus, setDebateStatus] = useState<'pending' | 'in_progress' | 'completed'>('pending');
@@ -42,6 +49,7 @@ function App() {
   // Audio state
   const [currentAudioUrl, setCurrentAudioUrl] = useState<string | null>(null);
   const [currentAudioExpertId, setCurrentAudioExpertId] = useState<string>('');
+  const [isWaitingForAudio, setIsWaitingForAudio] = useState(false);
   
   // Architecture reveal state
   const [finalArchitecture, setFinalArchitecture] = useState<{
@@ -243,6 +251,18 @@ function App() {
     
     let currentRound = 0;
     let currentExpertIndex = 0;
+    let nextMessageScheduled = false;
+    
+    const scheduleNextMessage = () => {
+      if (nextMessageScheduled) return;
+      nextMessageScheduled = true;
+      
+      // Small delay before next message (for visual pacing)
+      setTimeout(() => {
+        nextMessageScheduled = false;
+        addDemoMessage();
+      }, 1500);
+    };
     
     const addDemoMessage = () => {
       // Check if we've completed all rounds
@@ -327,12 +347,6 @@ function App() {
         setCurrentStreamingMessage(null);
         setSpeakingExpertId(null);
         
-        // Play audio if available (gracefully ignore missing URLs)
-        if (audioUrl) {
-          setCurrentAudioUrl(audioUrl);
-          setCurrentAudioExpertId(expertId);
-        }
-        
         // Update frustration level based on round and expert's response
         // Frustration increases as rounds progress
         const baseFrustration = currentRound + 1;
@@ -353,12 +367,21 @@ function App() {
           currentRound++;
         }
         
-        // Schedule next message
-        // Wait longer if audio is playing, shorter otherwise
-        const delay = audioUrl ? 6000 : 3000;
-        setTimeout(addDemoMessage, delay);
+        // Play audio if available and wait for it to complete
+        if (audioUrl) {
+          setIsWaitingForAudio(true);
+          setCurrentAudioUrl(audioUrl);
+          setCurrentAudioExpertId(expertId);
+          // Next message will be scheduled when audio completes via handleAudioComplete
+        } else {
+          // No audio, schedule next message immediately
+          scheduleNextMessage();
+        }
       }, 2000);
     };
+    
+    // Store the schedule function so it can be called from audio complete handler
+    window.__scheduleNextDemoMessage = scheduleNextMessage;
     
     // Start the demo
     addDemoMessage();
@@ -412,7 +435,18 @@ function App() {
   const handleAudioComplete = useCallback(() => {
     setCurrentAudioUrl(null);
     setCurrentAudioExpertId('');
-  }, []);
+    
+    // If we're in demo mode and waiting for audio, schedule next message
+    if (isWaitingForAudio && isDemoMode()) {
+      setIsWaitingForAudio(false);
+      const scheduleNext = window.__scheduleNextDemoMessage;
+      if (scheduleNext) {
+        scheduleNext();
+      }
+    } else {
+      setIsWaitingForAudio(false);
+    }
+  }, [isWaitingForAudio]);
 
   // Handle architecture download
   const handleArchitectureDownload = useCallback((assetType: 'diagram' | 'all') => {
